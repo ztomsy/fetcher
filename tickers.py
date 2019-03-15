@@ -19,9 +19,10 @@ fetcher.sqla_reporter.create_tables()
 
 # adding single ticker
 fetcher.sqla_reporter.new_session()
-fetcher.sqla_reporter.session.add(Tickers.from_single_ticker("ETH/BTC", tickers["ETH/BTC"]))
+fetcher.sqla_reporter.session.add(Tickers.from_single_ticker(fetcher.exchange_id, "ETH/BTC", tickers["ETH/BTC"]))
 fetcher.sqla_reporter.session.commit()
 
 # adding list of tickers
-fetcher.sqla_reporter.connection.execute(Tickers.__table__.insert(), Tickers.bulk_list_from_tickers(tickers))
+fetcher.sqla_reporter.connection.execute(Tickers.__table__.insert(), Tickers.bulk_list_from_tickers(fetcher.exchange_id,
+                                                                                                    tickers))
 
