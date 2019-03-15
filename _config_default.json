@@ -1,0 +1,8 @@
+{
+  "exchange_id": "binance",
+  "sqla":
+    {
+      "enabled": true,
+      "connection_string": "postgres://ztom_main:ztom@localserver:5432/ztom_dev"
+    }
+}

@@ -1,0 +1,16 @@
+2019-03-15 18:39:23,915 [MainThread  ] [INFO ]  SQLA Reporter Enabled
+2019-03-15 18:39:23,915 [MainThread  ] [INFO ]  SQLA connection string postgres://ztom_main:ztom@localserver:5432/ztom_dev
+2019-03-15 18:47:32,876 [MainThread  ] [INFO ]  SQLA Reporter Enabled
+2019-03-15 18:47:32,876 [MainThread  ] [INFO ]  SQLA connection string postgres://ztom_main:ztom@localserver:5432/ztom_dev
+2019-03-15 18:47:50,851 [MainThread  ] [INFO ]  SQLA Reporter Enabled
+2019-03-15 18:47:50,851 [MainThread  ] [INFO ]  SQLA connection string postgres://ztom_main:ztom@localserver:5432/ztom_dev
+2019-03-15 18:48:53,686 [MainThread  ] [INFO ]  SQLA Reporter Enabled
+2019-03-15 18:48:53,686 [MainThread  ] [INFO ]  SQLA connection string postgres://ztom_main:ztom@localserver:5432/ztom_dev
+2019-03-15 19:08:57,651 [MainThread  ] [INFO ]  SQLA Reporter Enabled
+2019-03-15 19:08:57,651 [MainThread  ] [INFO ]  SQLA connection string postgres://ztom_main:ztom@localserver:5432/ztom_dev
+2019-03-15 19:15:01,252 [MainThread  ] [INFO ]  SQLA Reporter Enabled
+2019-03-15 19:15:01,252 [MainThread  ] [INFO ]  SQLA connection string postgres://ztom_main:ztom@localserver:5432/ztom_dev
+2019-03-15 19:15:47,265 [MainThread  ] [INFO ]  SQLA Reporter Enabled
+2019-03-15 19:15:47,265 [MainThread  ] [INFO ]  SQLA connection string postgres://ztom_main:ztom@localserver:5432/ztom_dev
+2019-03-15 19:22:01,210 [MainThread  ] [INFO ]  SQLA Reporter Enabled
+2019-03-15 19:22:01,210 [MainThread  ] [INFO ]  SQLA connection string postgres://ztom_main:ztom@localserver:5432/ztom_dev
