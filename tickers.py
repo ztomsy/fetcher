@@ -26,45 +26,60 @@ fetcher.log(fetcher.LOG_INFO, "Initializing DataBase... {}".format(fetcher.sqla[
 fetcher.init_remote_reports()
 fetcher.log(fetcher.LOG_INFO, "... OK")
 
-fetcher.sqla_reporter.TABLES = [Tickers]
-created_tables = fetcher.sqla_reporter.create_tables()
-if len(created_tables) > 0:
-    fetcher.log(fetcher.LOG_INFO, "Created tables {}".format(created_tables))
+if fetcher.sqla is not None and fetcher.sqla["enabled"]:
+    fetcher.sqla_reporter.TABLES = [Tickers]
+    created_tables = fetcher.sqla_reporter.create_tables()
+    if len(created_tables) > 0:
+        fetcher.log(fetcher.LOG_INFO, "Created tables {}".format(created_tables))
+else:
+    fetcher.log(fetcher.LOG_INFO, "Will not save to DB")
 
 fetch_num = 0
+saved_to_db = False
 print("=========================================================================")
 
 while True:
     sleep_time = fetcher.exchange.requests_throttle.sleep_time()
 
+
     time.sleep(sleep_time)
     try:
         tickers = fetcher.exchange.fetch_tickers()
-
     except Exception as e:
         fetcher.log(fetcher.LOG_ERROR, "Error fetching tickers:")
         fetcher.log(fetcher.LOG_ERROR, ".. exception: {}".format(type(e).__name__))
         fetcher.log(fetcher.LOG_ERROR, ".. exception body:", e.args)
 
+    tps = fetcher.exchange.requests_throttle.total_requests_current_period / fetcher.exchange.requests_throttle._current_period_time \
+        if fetcher.exchange.requests_throttle._current_period_time != 0 else 0.0
+
     sys.stdout.write('\r')
-    sys.stdout.write("Total Fetches: {total_fetches}. Current Period Time: {period_time}. "
-                     "Requests in period: {requests_in_period} / {total_requests_in_period}. Sleep {sleep_time}".
+    sys.stdout.write("Total Fetches: {total_fetches}. TPS current period: {tps}. Current Period Time: {period_time}. "
+                     "Requests in period: {requests_in_period} / {total_requests_in_period}. Sleep {sleep_time}."
+                     "Saved to DB: {saved_to_db}".
                      format(total_fetches=fetch_num,
+                            tps=tps,
                             period_time=fetcher.exchange.requests_throttle._current_period_time,
                             requests_in_period=fetcher.exchange.requests_throttle.total_requests_current_period,
                             total_requests_in_period=fetcher.exchange.requests_throttle.requests_per_period,
-                            sleep_time=sleep_time)
+                            sleep_time=sleep_time,
+                            saved_to_db=saved_to_db)
                      )
 
     sys.stdout.flush()
     fetch_num += 1
+    saved_to_db = False
 
     # fetcher.sqla_reporter.new_session()
-    try:
-        fetcher.sqla_reporter.connection.execute(Tickers.__table__.insert(),
-                                             Tickers.bulk_list_from_tickers(fetcher.exchange_id,
-                                                                            tickers))
-    except Exception as e:
-        fetcher.log(fetcher.LOG_ERROR, "Error saving tickers:")
-        fetcher.log(fetcher.LOG_ERROR, ".. exception: {}".format(type(e).__name__))
-        fetcher.log(fetcher.LOG_ERROR, ".. exception body:", e.args)
+    if fetcher.sqla["enabled"]:
+        try:
+            fetcher.sqla_reporter.connection.execute(Tickers.__table__.insert(),
+                                                 Tickers.bulk_list_from_tickers(fetcher.exchange_id,
+                                                                                tickers))
+
+            saved_to_db = True
+        except Exception as e:
+            fetcher.log(fetcher.LOG_ERROR, "Error saving tickers:")
+            fetcher.log(fetcher.LOG_ERROR, ".. exception: {}".format(type(e).__name__))
+            fetcher.log(fetcher.LOG_ERROR, ".. exception body:", e.args)
+
