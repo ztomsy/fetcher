@@ -1,5 +1,12 @@
 {
   "exchange_id": "binance",
+
+  "throttle":
+    { "enabled": true,
+      "lap_time": 60,
+      "max_requests_per_lap": 1200
+    },
+
   "sqla":
     {
       "enabled": true,
