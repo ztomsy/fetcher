@@ -7,7 +7,7 @@ import sys
 fetcher = Bot("_config_default.json", "fetcher.log")
 fetcher.throttle = None
 
-fetcher.get_cli_parameters(sys.argv[1:])
+fetcher.set_from_cli(sys.argv[1:])
 fetcher.load_config_from_file(fetcher.config_filename)
 
 fetcher.noauth = True  # we are not going to authorize on exchange
