@@ -70,12 +70,14 @@ while True:
     fetch_num += 1
     saved_to_db = False
 
-    # fetcher.sqla_reporter.new_session()
     if fetcher.sqla["enabled"]:
         try:
-            fetcher.sqla_reporter.connection.execute(Tickers.__table__.insert(),
+            # fast bulk insert as referenced:
+            # https://stackoverflow.com/questions/45484171/sqlalchemy-bulk-insert-is-slower-than-building-raw-sql
+
+            fetcher.sqla_reporter.connection.execute(Tickers.__table__.insert().values(
                                                  Tickers.bulk_list_from_tickers(fetcher.exchange_id,
-                                                                                tickers))
+                                                                                tickers)))
 
             saved_to_db = True
         except Exception as e:
