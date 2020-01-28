@@ -1,10 +1,12 @@
-from tkgcore import Bot
-from tkgcore import Tickers
-
+from ztom import Bot
+from ztom import Tickers
+from ztom import timer
 import time
 import sys
 
 fetcher = Bot("_config_default.json", "fetcher.log")
+
+# init throttle field to be read from the config
 fetcher.throttle = None
 
 fetcher.set_from_cli(sys.argv[1:])
@@ -38,24 +40,32 @@ fetch_num = 0
 saved_to_db = False
 print("=========================================================================")
 
+timer = timer.Timer()
+timer_report = dict()
+
 while True:
     sleep_time = fetcher.exchange.requests_throttle.sleep_time()
-
-
+    # will
     time.sleep(sleep_time)
     try:
+        timer.reset_notches()
+        timer.notch("start")
         tickers = fetcher.exchange.fetch_tickers()
+
     except Exception as e:
         fetcher.log(fetcher.LOG_ERROR, "Error fetching tickers:")
         fetcher.log(fetcher.LOG_ERROR, ".. exception: {}".format(type(e).__name__))
         fetcher.log(fetcher.LOG_ERROR, ".. exception body:", e.args)
+    timer.notch("tickers_received")
 
     tps = fetcher.exchange.requests_throttle.total_requests_current_period / fetcher.exchange.requests_throttle._current_period_time \
         if fetcher.exchange.requests_throttle._current_period_time != 0 else 0.0
 
     sys.stdout.write('\r')
-    sys.stdout.write("Total Fetches: {total_fetches}. TPS current period: {tps}. Current Period Time: {period_time}. "
-                     "Requests in period: {requests_in_period} / {total_requests_in_period}. Sleep {sleep_time}."
+    sys.stdout.write("Total Fetches: {total_fetches}. Fetch time: {fetch_time}. db_time: {db_write_time} "
+                     "TPS current period: "
+                     "{tps}. Current Period Time: {period_time}. "
+                     "Requests in period: {requests_in_period} / {total_requests_in_period}. Sleep {sleep_time}. "
                      "Saved to DB: {saved_to_db}".
                      format(total_fetches=fetch_num,
                             tps=tps,
@@ -63,13 +73,16 @@ while True:
                             requests_in_period=fetcher.exchange.requests_throttle.total_requests_current_period,
                             total_requests_in_period=fetcher.exchange.requests_throttle.requests_per_period,
                             sleep_time=sleep_time,
-                            saved_to_db=saved_to_db)
+                            saved_to_db=saved_to_db,
+                            fetch_time=timer_report.get("tickers_received"),
+                            db_write_time=timer_report.get("db_write")
+                            )
                      )
 
     sys.stdout.flush()
     fetch_num += 1
     saved_to_db = False
-
+    timer.notch("output")
     if fetcher.sqla["enabled"]:
         try:
             # fast bulk insert as referenced:
@@ -84,4 +97,6 @@ while True:
             fetcher.log(fetcher.LOG_ERROR, "Error saving tickers:")
             fetcher.log(fetcher.LOG_ERROR, ".. exception: {}".format(type(e).__name__))
             fetcher.log(fetcher.LOG_ERROR, ".. exception body:", e.args)
+        timer.notch("db_write")
 
+        timer_report = timer.results_dict()
